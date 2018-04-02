@@ -1,0 +1,59 @@
+= GPW Workdir Template
+
+To use it, you need to have the prerequisites for Yocto fulfilled and additionally `docbook2x` installed.
+
+== Getting the source
+
+Create yourself a bsp directory with a sources subdirectory in it and clone the source repositories as well as the workdir template
+
+[source,console]
+----
+$ mkdir -p gpw-community-bsp/sources
+$ cd gpw-community-bsp
+$ git clone -b master https://github.com/rehsack/gpw-yocto-platform.git gpw-yocto-platform
+$ cd sources
+$ for rep in poky meta-openembedded meta-cpan meta-jens meta-gpw; do \
+  git clone --branch master https://github.com/rehsack/${rep}; done
+----
+
+== Preparing your environment
+
+Append 
+
+[source,shell]
+----
+export VLAN_GRP=1
+export LANG=en_US.UTF-8
+source ~/gpw-community-bsp/sources/poky/scripts/oe-init-bashrc
+----
+
+to your `.bashrc`, plus `. ~/perl5/perlbrew/etc/bashrc` if you want use https://github.com/rehsack/Packager-Utils to manage `meta-cpan`.
+
+Now source `. ~/gpw-community-bsp/sources/poky/scripts/oe-init-bashrc` manually, `exec bash -l` or whatever you need to apply the environmental changes.
+
+== Start first build
+
+[source,console]
+----
+$ oe_builddir use ~/gpw-community-bsp/gpw-yocto-platform
+$ mkimgs updatable-app-image
+----
+
+If you now be scary to flash the builtin storage of you device
+as your first action, prepare some different bootoptions:
+
+=== Build for an SD-card
+
+[source,console]
+----
+$ oe_builddir use ~/gpw-community-bsp/gpw-yocto-platform
+$ env WANTED_ROOT_DEV=sd mkimgs updatable-app-image
+----
+
+=== Build for an NFS root
+
+[source,console]
+----
+$ oe_builddir use ~/gpw-community-bsp/gpw-yocto-platform
+$ env WANTED_ROOT_DEV=nfs bitbake updatable-core-image
+----
